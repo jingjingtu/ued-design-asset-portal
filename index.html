@@ -1,1084 +1,543 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light" />
-  <title>UED Asset Map｜设计资产门户</title>
-  <style>
-    :root {
-      --ink: #172033;
-      --muted: #667085;
-      --line: #e6e8ee;
-      --soft: #f4f5f7;
-      --paper: #ffffff;
-      --blue: #2f66f6;
-      --blue-soft: #eaf0ff;
-      --green: #52c978;
-      --lime: #d9ff63;
-      --orange: #ffb454;
-      --purple: #9a7cf8;
-      --radius-lg: 28px;
-      --radius-md: 20px;
-      --radius-sm: 14px;
-      --shadow: 0 18px 55px rgba(23, 32, 51, .09);
-      --page: min(1320px, calc(100vw - 72px));
-    }
-
-    * { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display",
-        "PingFang SC", "Microsoft YaHei", sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input { font: inherit; }
-    a { color: inherit; text-decoration: none; }
-    img { display: block; max-width: 100%; }
-    [hidden] { display: none !important; }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      border-bottom: 1px solid rgba(230, 232, 238, .82);
-      background: rgba(255, 255, 255, .88);
-      backdrop-filter: blur(18px);
-    }
-
-    .topbar__inner {
-      width: var(--page);
-      height: 76px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 194px;
-      font-size: 15px;
-      font-weight: 780;
-      letter-spacing: -.02em;
-    }
-
-    .brand__mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 11px;
-      display: grid;
-      place-items: center;
-      color: #fff;
-      background: var(--ink);
-      font-size: 12px;
-      letter-spacing: .08em;
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .nav a {
-      padding: 10px 13px;
-      color: #50596c;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 620;
-      transition: .2s ease;
-    }
-
-    .nav a:hover { color: var(--ink); background: var(--soft); }
-
-    .topbar__actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .search-mini {
-      width: 230px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 0 13px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #f8f9fb;
-    }
-
-    .search-mini svg { width: 17px; color: #788196; }
-
-    .search-mini input {
-      width: 100%;
-      border: 0;
-      outline: 0;
-      color: var(--ink);
-      background: transparent;
-      font-size: 13px;
-    }
-
-    .source-link {
-      height: 42px;
-      padding: 0 16px;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      border-radius: 12px;
-      color: #fff;
-      background: var(--ink);
-      font-size: 13px;
-      font-weight: 700;
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-
-    .source-link:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(23,32,51,.18); }
-
-    main { overflow: hidden; }
-
-    .hero {
-      position: relative;
-      width: var(--page);
-      min-height: 610px;
-      margin: 36px auto 0;
-      padding: 76px 64px 56px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(420px, .95fr);
-      gap: 60px;
-      align-items: center;
-      border-radius: 36px;
-      overflow: hidden;
-      background: #f2f3f5;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      width: 520px;
-      height: 520px;
-      left: -180px;
-      bottom: -320px;
-      border-radius: 50%;
-      background: var(--lime);
-      filter: blur(2px);
-      opacity: .86;
-    }
-
-    .hero__copy { position: relative; z-index: 2; }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: #4f586b;
-      font-size: 13px;
-      font-weight: 740;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 0 5px rgba(47,102,246,.12);
-    }
-
-    h1 {
-      margin: 24px 0 22px;
-      max-width: 690px;
-      font-size: clamp(50px, 5vw, 76px);
-      line-height: 1.06;
-      letter-spacing: -.065em;
-      font-weight: 790;
-    }
-
-    .hero__lead {
-      margin: 0;
-      max-width: 600px;
-      color: #5b6475;
-      font-size: 18px;
-      line-height: 1.75;
-    }
-
-    .search-main {
-      margin-top: 36px;
-      max-width: 600px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      padding: 0 14px 0 20px;
-      border: 1px solid #dfe2e8;
-      border-radius: 18px;
-      background: #fff;
-      box-shadow: 0 14px 36px rgba(23,32,51,.08);
-    }
-
-    .search-main svg { width: 22px; color: #6a7487; flex: 0 0 auto; }
-
-    .search-main input {
-      flex: 1;
-      min-width: 0;
-      border: 0;
-      outline: 0;
-      color: var(--ink);
-      background: transparent;
-      font-size: 15px;
-    }
-
-    .search-main kbd {
-      padding: 5px 8px;
-      border: 1px solid #e1e4e9;
-      border-bottom-width: 2px;
-      border-radius: 8px;
-      color: #7a8291;
-      background: #f7f8fa;
-      font-size: 11px;
-    }
-
-    .quick-links {
-      margin-top: 22px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .quick-links button {
-      padding: 8px 12px;
-      border: 1px solid #dfe2e8;
-      border-radius: 999px;
-      color: #596273;
-      background: rgba(255,255,255,.72);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 650;
-    }
-
-    .quick-links button:hover { color: var(--blue); border-color: #b9c9ff; background: #fff; }
-
-    .hero__visual {
-      position: relative;
-      z-index: 2;
-      min-height: 450px;
-    }
-
-    .visual-card {
-      position: absolute;
-      overflow: hidden;
-      border: 7px solid #fff;
-      border-radius: 24px;
-      background: #fff;
-      box-shadow: var(--shadow);
-    }
-
-    .visual-card img { width: 100%; height: 100%; object-fit: cover; }
-    .visual-card--a { width: 330px; height: 212px; right: 0; top: 0; transform: rotate(2.5deg); }
-    .visual-card--a img { object-position: top center; }
-    .visual-card--b { width: 264px; height: 232px; left: 0; top: 130px; transform: rotate(-4deg); }
-    .visual-card--b img { object-position: top center; }
-    .visual-card--c {
-      width: 305px;
-      height: 180px;
-      right: 30px;
-      bottom: 0;
-      display: grid;
-      place-items: center;
-      border-color: var(--ink);
-      color: var(--lime);
-      background: var(--ink);
-      transform: rotate(-1.5deg);
-    }
-
-    .visual-card--c strong { font-size: 31px; letter-spacing: -.04em; }
-    .visual-card--c span { display: block; margin-top: 8px; color: #b9c0cc; font-size: 12px; letter-spacing: .08em; }
-
-    .content { width: var(--page); margin: 0 auto; }
-
-    .overview {
-      margin-top: 42px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .overview a {
-      min-height: 116px;
-      padding: 24px 26px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border-right: 1px solid var(--line);
-      background: #fff;
-      transition: background .2s ease;
-    }
-
-    .overview a:last-child { border-right: 0; }
-    .overview a:hover { background: #f8f9fb; }
-    .overview strong { font-size: 16px; letter-spacing: -.02em; }
-    .overview span { color: #7a8291; font-size: 12px; }
-
-    .section {
-      padding: 118px 0 0;
-      scroll-margin-top: 84px;
-    }
-
-    .section__head {
-      margin-bottom: 38px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(260px, 430px);
-      gap: 30px;
-      align-items: end;
-    }
-
-    .section__number {
-      margin-bottom: 12px;
-      color: var(--blue);
-      font-size: 12px;
-      font-weight: 760;
-      letter-spacing: .14em;
-    }
-
-    .section h2 {
-      margin: 0;
-      font-size: clamp(38px, 4vw, 54px);
-      line-height: 1.08;
-      letter-spacing: -.055em;
-      font-weight: 780;
-    }
-
-    .section__intro {
-      margin: 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.7;
-    }
-
-    .subsection-head {
-      margin: 52px 0 20px;
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-    }
-
-    .subsection-head h3 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
-    .subsection-head span { color: #8a92a1; font-size: 12px; }
-
-    .ops-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-
-    .resource-card,
-    .project-card,
-    .asset-card,
-    .tool-card,
-    .skill-card,
-    .guide-card {
-      position: relative;
-      border: 1px solid var(--line);
-      background: #fff;
-      transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease;
-    }
-
-    .resource-card:hover,
-    .project-card:hover,
-    .asset-card:hover,
-    .tool-card:hover,
-    .skill-card:hover,
-    .guide-card:hover {
-      transform: translateY(-4px);
-      border-color: #d6dae3;
-      box-shadow: 0 16px 44px rgba(23,32,51,.09);
-    }
-
-    .resource-card {
-      overflow: hidden;
-      border-radius: var(--radius-md);
-    }
-
-    .resource-card__media {
-      height: 235px;
-      padding: 18px 18px 0;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      overflow: hidden;
-      background: #eef1f5;
-    }
-
-    .resource-card:nth-child(2) .resource-card__media { background: #e7edff; }
-    .resource-card:nth-child(3) .resource-card__media { background: #edf8ec; }
-
-    .resource-card__media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: top center;
-      border-radius: 12px 12px 0 0;
-      box-shadow: 0 12px 28px rgba(23,32,51,.15);
-    }
-
-    .resource-card__body { padding: 22px 22px 20px; }
-
-    .meta-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #7b8495;
-      font-size: 11px;
-      font-weight: 650;
-    }
-
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
-
-    .resource-card h3,
-    .project-card h3,
-    .asset-card h3,
-    .tool-card h3,
-    .skill-card h3,
-    .guide-card h3 {
-      margin: 12px 0 0;
-      font-size: 18px;
-      line-height: 1.42;
-      letter-spacing: -.025em;
-    }
-
-    .card-footer {
-      margin-top: 20px;
-      padding-top: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid #eff0f3;
-    }
-
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: #858d9d;
-      font-size: 11px;
-      font-weight: 650;
-    }
-
-    .arrow {
-      width: 31px;
-      height: 31px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      color: #fff;
-      background: var(--ink);
-      font-size: 14px;
-    }
-
-    .project-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    .project-card {
-      min-height: 355px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      border-radius: var(--radius-md);
-    }
-
-    .project-card__visual {
-      height: 190px;
-      position: relative;
-      overflow: hidden;
-      border-radius: 14px;
-      background: var(--green);
-    }
-
-    .project-card__visual img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
-    .project-card__visual--blue { background: #3f70f6; }
-    .project-card__visual--orange { background: #ffb15e; }
-    .project-card__visual--purple { background: #a589f7; }
-
-    .project-card__visual::after {
-      content: attr(data-label);
-      position: absolute;
-      left: 16px;
-      top: 14px;
-      padding: 6px 9px;
-      border-radius: 999px;
-      color: #fff;
-      background: rgba(23,32,51,.72);
-      backdrop-filter: blur(7px);
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .project-card__body { padding: 14px 4px 0; display: flex; flex: 1; flex-direction: column; }
-    .project-card h3 { font-size: 16px; }
-    .project-card p { margin: 9px 0 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
-    .project-card .card-footer { margin-top: auto; }
-
-    .asset-feature-grid {
-      display: grid;
-      grid-template-columns: 1.15fr .85fr 1fr 1fr;
-      gap: 16px;
-    }
-
-    .asset-card {
-      min-height: 360px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow: hidden;
-      border-radius: var(--radius-md);
-      color: #fff;
-      border: 0;
-    }
-
-    .asset-card--dark { background: #101216; }
-    .asset-card--blue { background: #3768f3; }
-    .asset-card--lime { color: var(--ink); background: var(--lime); }
-    .asset-card--image { background: #e9eef8; color: var(--ink); }
-
-    .asset-card__tag {
-      align-self: flex-start;
-      padding: 7px 10px;
-      border: 1px solid currentColor;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 720;
-      opacity: .72;
-    }
-
-    .asset-card h3 { max-width: 240px; margin-top: 22px; font-size: 28px; line-height: 1.15; letter-spacing: -.05em; }
-    .asset-card p { margin: 11px 0 0; max-width: 270px; color: inherit; font-size: 12px; line-height: 1.65; opacity: .7; }
-
-    .asset-art {
-      position: relative;
-      width: 100%;
-      height: 145px;
-      margin-top: 22px;
-    }
-
-    .asset-art span {
-      position: absolute;
-      width: 74px;
-      height: 74px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 22px;
-      color: var(--lime);
-      background: rgba(255,255,255,.08);
-      font-size: 25px;
-      font-weight: 760;
-      transform: rotate(-8deg);
-    }
-
-    .asset-art span:nth-child(2) { left: 72px; top: 38px; transform: rotate(5deg); }
-    .asset-art span:nth-child(3) { right: 0; top: 4px; color: #fff; transform: rotate(10deg); }
-    .asset-card--blue .asset-art span { color: #fff; }
-    .asset-card--lime .asset-art span { color: var(--ink); border-color: rgba(23,32,51,.2); background: rgba(255,255,255,.45); }
-
-    .asset-card--image img {
-      width: calc(100% + 40px);
-      height: 176px;
-      margin: 22px -20px -20px;
-      object-fit: cover;
-      object-position: top center;
-    }
-
-    .asset-secondary-grid {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .editorial-card {
-      min-height: 260px;
-      padding: 28px;
-      display: grid;
-      grid-template-columns: 1fr 210px;
-      align-items: center;
-      gap: 24px;
-      overflow: hidden;
-      border-radius: var(--radius-md);
-      color: #fff;
-      background: var(--ink);
-    }
-
-    .editorial-card--blue { background: var(--blue); }
-    .editorial-card h3 { margin: 14px 0 10px; font-size: 28px; line-height: 1.18; letter-spacing: -.045em; }
-    .editorial-card p { margin: 0; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.7; }
-    .editorial-card img { width: 210px; height: 210px; object-fit: cover; object-position: top center; border-radius: 18px; transform: rotate(3deg); }
-    .editorial-card--blue img { transform: rotate(-3deg); }
-
-    .link-list {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .link-item {
-      min-height: 88px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
-    }
-
-    .link-item__icon {
-      width: 42px;
-      height: 42px;
-      flex: 0 0 auto;
-      display: grid;
-      place-items: center;
-      border-radius: 12px;
-      color: var(--blue);
-      background: var(--blue-soft);
-      font-weight: 800;
-    }
-
-    .link-item strong { display: block; font-size: 13px; line-height: 1.45; }
-    .link-item span { display: block; margin-top: 5px; color: #8a92a1; font-size: 10px; }
-
-    .tool-layout {
-      display: grid;
-      grid-template-columns: 255px 1fr;
-      gap: 24px;
-    }
-
-    .tool-aside {
-      padding: 28px;
-      border-radius: var(--radius-md);
-      background: var(--ink);
-      color: #fff;
-    }
-
-    .tool-aside strong { display: block; font-size: 24px; letter-spacing: -.04em; }
-    .tool-aside p { margin: 14px 0 30px; color: #aeb6c4; font-size: 12px; line-height: 1.7; }
-    .tool-aside span { color: var(--lime); font-size: 11px; font-weight: 700; }
-
-    .tool-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .tool-card {
-      min-height: 205px;
-      padding: 21px;
-      display: flex;
-      flex-direction: column;
-      border-radius: 16px;
-    }
-
-    .tool-icon {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 13px;
-      color: #fff;
-      background: var(--ink);
-      font-size: 15px;
-      font-weight: 790;
-    }
-
-    .tool-card:nth-child(2) .tool-icon { background: var(--blue); }
-    .tool-card:nth-child(3) .tool-icon { color: var(--ink); background: var(--orange); }
-    .tool-card:nth-child(4) .tool-icon { background: #865ff6; }
-    .tool-card:nth-child(5) .tool-icon { color: var(--ink); background: var(--lime); }
-    .tool-card h3 { font-size: 15px; }
-    .tool-card p { margin: 8px 0 18px; color: var(--muted); font-size: 11px; line-height: 1.65; }
-    .tool-card .status { margin-top: auto; }
-
-    .skill-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .skill-card {
-      min-height: 188px;
-      padding: 20px;
-      display: grid;
-      grid-template-columns: 1fr 130px;
-      gap: 16px;
-      align-items: center;
-      border-radius: 16px;
-    }
-
-    .skill-avatar {
-      width: 32px;
-      height: 32px;
-      margin-bottom: 20px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      background: #ffe571;
-      font-size: 13px;
-    }
-
-    .skill-card h3 { margin: 0; font-size: 14px; }
-    .skill-card p { margin: 7px 0 0; color: #8a92a1; font-size: 10px; }
-
-    .skill-preview {
-      height: 116px;
-      padding: 9px;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      border-radius: 12px;
-      background: #14171d;
-      transform: rotate(2deg);
-    }
-
-    .skill-preview i { display: block; border-radius: 5px; background: linear-gradient(135deg, #2f66f6, #7b5cff); }
-    .skill-preview i:nth-child(2) { background: linear-gradient(135deg, #d9ff63, #4bd779); }
-    .skill-preview i:nth-child(3) { background: linear-gradient(135deg, #ffb454, #f06595); }
-    .skill-preview i:nth-child(4) { background: #333946; }
-
-    .guide-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .guide-card {
-      min-height: 240px;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      border-radius: var(--radius-md);
-      background: #f4f5f7;
-    }
-
-    .guide-card:nth-child(2) { background: var(--blue-soft); }
-    .guide-card__index { color: #8a92a1; font-size: 11px; font-weight: 750; letter-spacing: .1em; }
-    .guide-card h3 { margin-top: 56px; font-size: 26px; }
-    .guide-card p { margin: 12px 0 0; max-width: 470px; color: var(--muted); font-size: 13px; line-height: 1.7; }
-    .guide-card .status { margin-top: auto; padding-top: 22px; }
-
-    .empty-state {
-      margin: 52px 0 0;
-      padding: 42px;
-      border: 1px dashed #cfd4dc;
-      border-radius: 20px;
-      text-align: center;
-      background: #fafbfc;
-    }
-
-    .empty-state strong { display: block; font-size: 18px; }
-    .empty-state span { display: block; margin-top: 8px; color: var(--muted); font-size: 13px; }
-
-    footer {
-      width: var(--page);
-      margin: 118px auto 28px;
-      padding: 36px 0 26px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-top: 1px solid var(--line);
-      color: #7c8595;
-      font-size: 12px;
-    }
-
-    footer strong { color: var(--ink); }
-
-    @media (max-width: 1080px) {
-      :root { --page: min(100% - 40px, 960px); }
-      .nav { display: none; }
-      .hero { grid-template-columns: 1fr; padding: 64px 48px; }
-      .hero__visual { min-height: 390px; }
-      .project-grid, .asset-feature-grid { grid-template-columns: repeat(2, 1fr); }
-      .tool-layout { grid-template-columns: 1fr; }
-      .tool-grid, .skill-grid { grid-template-columns: repeat(2, 1fr); }
-      .link-list { grid-template-columns: repeat(2, 1fr); }
-      .overview { grid-template-columns: repeat(2, 1fr); }
-      .overview a:nth-child(2) { border-right: 0; }
-      .overview a:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-    }
-
-    @media (max-width: 720px) {
-      :root { --page: calc(100% - 28px); }
-      .topbar__inner { height: 66px; }
-      .brand { min-width: auto; }
-      .brand span:last-child, .search-mini { display: none; }
-      .source-link { padding: 0 12px; }
-      .hero { margin-top: 16px; padding: 48px 24px 30px; border-radius: 24px; min-height: auto; }
-      h1 { font-size: 46px; }
-      .hero__lead { font-size: 15px; }
-      .hero__visual { min-height: 320px; margin-top: 16px; }
-      .visual-card--a { width: 70%; height: 160px; }
-      .visual-card--b { width: 58%; height: 175px; top: 100px; }
-      .visual-card--c { width: 65%; height: 130px; }
-      .visual-card--c strong { font-size: 22px; }
-      .overview { grid-template-columns: 1fr 1fr; }
-      .overview a { padding: 19px; min-height: 100px; }
-      .section { padding-top: 82px; }
-      .section__head { grid-template-columns: 1fr; gap: 16px; }
-      .section h2 { font-size: 38px; }
-      .ops-grid, .project-grid, .asset-feature-grid, .asset-secondary-grid,
-      .tool-grid, .skill-grid, .guide-grid, .link-list { grid-template-columns: 1fr; }
-      .editorial-card { grid-template-columns: 1fr 120px; padding: 22px; }
-      .editorial-card img { width: 120px; height: 150px; }
-      .skill-card { grid-template-columns: 1fr 125px; }
-      footer { align-items: flex-start; flex-direction: column; gap: 10px; }
-    }
-  </style>
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="nhBoXhLCBfAKDKDRHl3TS2">
+<head data-page-node-id="eepbsiHuJIpFAGd0NPqBkF">
+<meta charset="UTF-8" data-page-node-id="fGRzEFECDxNQED4vLbUUJL">
+<meta name="viewport" content="width=device-width,initial-scale=1" data-page-node-id="LaDFn3SfeohDruKgEl9Ro2">
+<title>DesignMap · UED Asset Portal</title>
+<style>
+:root{
+  --bg:#fafbfc;--paper:#fff;--ink:#172b4d;--muted:#6b778c;--line:#e4e8ee;
+  --blue:#0052cc;--blue-deep:#0747a6;--blue-soft:#e9f2ff;
+  --navy:#172b4d;--teal:#0e8a76;--purple:#6a5ad8;--amber:#b97a12;
+  --r:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg)}
+button,input{font:inherit}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+
+/* ===== 顶部导航（Atlassian 式白底+蓝主色） ===== */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1440px;margin:auto;height:60px;padding:0 36px;display:flex;align-items:center;gap:26px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;letter-spacing:-.02em}
+.brand-mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#0052cc,#2684ff);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:900}
+.brand em{font-style:normal;color:#8a939e;font-weight:500;font-size:12.5px}
+.nav{display:flex;gap:2px}
+.nav button{border:0;background:transparent;color:#5a6470;padding:8px 14px;border-radius:8px;font-size:13.5px;font-weight:550}
+.nav button:hover{background:#f0f3f7;color:var(--ink)}
+.nav button.active{color:var(--blue)}
+.nav button.active:after{content:"";display:block;height:2.5px;background:var(--blue);border-radius:2px;margin:5px -14px -11px}
+.searchbox{margin-left:auto;display:flex;align-items:center;gap:9px;height:40px;width:min(380px,32vw);background:#f1f3f6;border:1px solid transparent;border-radius:10px;padding:0 14px;color:#9298a1}
+.searchbox:focus-within{background:#fff;border-color:#b9c9e8;box-shadow:0 0 0 3px rgba(0,82,204,.08)}
+.searchbox input{border:0;outline:0;background:transparent;width:100%;font-size:13px;color:var(--ink)}
+
+.wrap{max-width:1440px;margin:auto;padding:0 36px}
+
+/* ===== 首页 Hero（Mobbin 式大标题+居中搜索） ===== */
+.hero{padding:76px 0 46px;text-align:center;border-bottom:1px solid var(--line);
+  background:radial-gradient(64% 88% at 50% 0%,#eaf3ff 0%,#fafbfc 72%)}
+.hero h1{font-size:44px;letter-spacing:-.035em;margin:0 0 14px;font-weight:800}
+.hero h1 span{background:linear-gradient(120deg,#0052cc,#2684ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:15.5px;color:var(--muted);max-width:560px;margin:0 auto 30px;line-height:1.75}
+.hero-search{display:flex;align-items:center;gap:10px;max-width:560px;margin:0 auto;height:52px;background:#fff;border:1px solid #d7deea;border-radius:14px;padding:0 18px;box-shadow:0 14px 40px rgba(9,30,66,.09);color:#9298a1}
+.hero-search input{border:0;outline:0;background:transparent;width:100%;font-size:14.5px}
+.hero-tags{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.htag{font-size:12.5px;font-weight:600;color:#3d4d6b;background:#fff;border:1px solid var(--line);border-radius:99px;padding:7px 15px;transition:.14s;cursor:pointer}
+.htag:hover{border-color:var(--blue);color:var(--blue)}
+.hero-stats{display:flex;gap:40px;justify-content:center;margin-top:38px}
+.hstat b{display:block;font-size:26px;letter-spacing:-.03em}
+.hstat span{font-size:12px;color:var(--muted)}
+
+/* ===== 模块页 hero（Atlassian 式左对齐） ===== */
+.page-hero{padding:40px 0 24px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#f4f8ff,transparent)}
+.crumbs{font-size:12px;color:#8a939e;margin-bottom:8px;font-weight:550}
+.page-hero h1{font-size:28px;letter-spacing:-.03em;margin:0 0 6px}
+.page-hero p{font-size:13.5px;color:var(--muted);max-width:640px;line-height:1.7;margin:0}
+
+/* ===== 分组导航（Figma Community 式 chip） ===== */
+.group-nav{display:flex;gap:8px;flex-wrap:wrap;padding:18px 0 4px;position:sticky;top:60px;background:var(--bg);z-index:40}
+.gtab{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 16px;font-size:12.5px;font-weight:600;color:#55606c;transition:.14s}
+.gtab:hover{border-color:#b9c9e8}
+.gtab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* ===== 卡片（Mobbin 式大预览+底部信息） ===== */
+.sec{padding:28px 0 10px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.sec-head h2{font-size:18px;margin:0;letter-spacing:-.02em}
+.sec-head .sub{font-size:12.5px;color:#9298a1}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+
+.mcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.2s;cursor:pointer;display:flex;flex-direction:column}
+.mcard:hover{transform:translateY(-4px);box-shadow:0 20px 44px rgba(9,30,66,.12);border-color:#c8d6ef}
+.mthumb{height:170px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.mthumb.c-navy{background:linear-gradient(155deg,#0d2b52,#27548f)}
+.mthumb.c-blue{background:linear-gradient(155deg,#0747a6,#2684ff)}
+.mthumb.c-teal{background:linear-gradient(155deg,#0b6b5c,#19a088)}
+.mthumb.c-purple{background:linear-gradient(155deg,#3b3187,#7566e0)}
+.mthumb.c-amber{background:linear-gradient(155deg,#8a5c0e,#d8a13a)}
+.mthumb.c-mist{background:linear-gradient(155deg,#e6ecf5,#f6f9fd)}
+.mock{position:absolute;inset:26px;background:#fff;border-radius:12px;box-shadow:0 14px 34px rgba(4,16,34,.22);padding:15px;overflow:hidden}
+.mock b{display:block;width:46%;height:10px;border-radius:5px;background:#1b2b3f;margin-bottom:13px}
+.mock i{display:block;height:7px;border-radius:4px;background:#e3e7ee;margin:7px 0}
+.mock i.w1{width:88%}.mock i.w2{width:66%}.mock i.w3{width:76%}
+.mbadge{position:absolute;top:11px;left:11px;font-size:10px;font-weight:700;color:#fff;background:rgba(6,18,36,.5);backdrop-filter:blur(4px);border-radius:7px;padding:3.5px 10px;letter-spacing:.03em}
+.mlink-chip{position:absolute;bottom:11px;right:11px;font-size:9.5px;font-weight:800;color:#3d4854;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:6px;padding:2.5px 9px}
+.mbody{padding:15px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.mbody h3{font-size:14.5px;margin:0;letter-spacing:-.015em}
+.mbody p{font-size:12px;color:#75808c;line-height:1.6;margin:0;flex:1}
+.mmeta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:#98a0ab;margin-top:4px}
+.chip{font-size:10px;font-weight:700;border-radius:6px;padding:2.5px 9px;white-space:nowrap}
+.chip.ok{color:#0e7a5f;background:#e6f5ef}
+.chip.doing{color:#265cc4;background:#e9f0fc}
+.chip.wait{color:#a06a10;background:#faf1de}
+.chip.old{color:#75808c;background:#eef0f3}
+
+/* ===== 项目区大卡（带链接按钮，Atlassian 引导色） ===== */
+.bigcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.2s;cursor:pointer;display:flex;flex-direction:column}
+.bigcard:hover{transform:translateY(-4px);box-shadow:0 20px 44px rgba(9,30,66,.12);border-color:#c8d6ef}
+.bigthumb{height:150px;position:relative;overflow:hidden}
+.bigbtn{position:absolute;top:12px;right:12px;font-size:10.5px;font-weight:700;color:#fff;background:rgba(6,18,36,.5);backdrop-filter:blur(4px);border-radius:8px;padding:4px 11px;letter-spacing:.02em}
+.bigbody{padding:17px 18px 18px;display:flex;flex-direction:column;gap:7px;flex:1}
+.bigbody h3{font-size:16px;margin:0;letter-spacing:-.015em}
+.bigbody p{font-size:12.5px;color:#75808c;line-height:1.65;margin:0;flex:1}
+.bigfoot{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.plat{font-size:10.5px;font-weight:700;color:#3355a8;background:#eef4ff;border-radius:6px;padding:3px 9px}
+
+/* ===== 工具卡（继承 tcard 风格） ===== */
+.tcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:19px;cursor:pointer;transition:.16s;display:flex;flex-direction:column;gap:12px}
+.tcard:hover{border-color:#c8d6ef;box-shadow:0 14px 32px rgba(9,30,66,.1);transform:translateY(-3px)}
+.tcard-top{display:flex;align-items:center;gap:12px}
+.t-ico{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;flex:none;letter-spacing:.01em}
+.t-ico.sk{background:var(--purple)}.t-ico.fp{background:var(--blue)}.t-ico.cv{background:var(--teal)}
+.tcard-top h3{font-size:14px;margin:0;letter-spacing:-.01em}
+.tkind{display:block;font-size:10.5px;color:#9298a1;margin-top:2px}
+.tcard p{font-size:12px;color:#75808c;line-height:1.65;margin:0;flex:1}
+.tcard-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.t-tags{display:flex;gap:6px;flex-wrap:wrap;min-width:0}
+.ttag{font-size:10px;color:#5b6673;background:#f1f3f6;border-radius:99px;padding:3px 11px;white-space:nowrap}
+.t-owner{font-size:10.5px;color:#98a0ab;white-space:nowrap;flex:none}
+
+/* ===== 指南卡 ===== */
+.gcard{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px;cursor:pointer;transition:.16s}
+.gcard:hover{border-color:#c8d6ef;box-shadow:0 12px 30px rgba(9,30,66,.09)}
+.gcard .gk{font:800 10px ui-monospace,Menlo;color:#8a93a0;letter-spacing:.1em;text-transform:uppercase}
+.gcard h3{font-size:15px;margin:9px 0 6px}
+.gcard p{font-size:12.5px;color:#7c8792;line-height:1.65;margin:0}
+
+/* ===== 场景快捷（首页） ===== */
+.scen-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:26px 0 4px}
+.scen{display:flex;flex-direction:column;gap:9px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;cursor:pointer;transition:.15s}
+.scen:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,82,204,.09)}
+.scen .si{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800}
+.scen b{font-size:12.5px}
+.scen small{font-size:10.5px;color:#9298a1}
+
+/* ===== 抽屉 ===== */
+.mask{position:fixed;inset:0;background:rgba(9,17,28,.46);z-index:80;display:none}
+.mask.show{display:block}
+.drawer{position:absolute;right:0;top:0;width:min(700px,100%);height:100%;overflow:auto;background:#fff;box-shadow:-18px 0 60px rgba(9,22,42,.22)}
+.dx{position:sticky;top:14px;z-index:5;float:right;margin:14px 16px 0 0;width:36px;height:36px;border:0;border-radius:10px;background:#f0f2f5;font-size:18px}
+.d-cover{height:230px;position:relative;overflow:hidden}
+.d-cover.t-navy{background:linear-gradient(150deg,#0d2b52,#27548f)}
+.d-cover.t-blue{background:linear-gradient(150deg,#0747a6,#2684ff)}
+.d-cover.t-teal{background:linear-gradient(150deg,#0b6b5c,#19a088)}
+.d-cover.t-purple{background:linear-gradient(150deg,#3b3187,#7566e0)}
+.d-cover.t-amber{background:linear-gradient(150deg,#8a5c0e,#d8a13a)}
+.d-cover.t-mist{background:linear-gradient(150deg,#dfe6ef,#eef2f7)}
+.d-body{padding:26px 32px 44px}
+.d-kick{font:800 10px ui-monospace,Menlo;color:#8a93a0;letter-spacing:.1em;text-transform:uppercase}
+.d-body h2{font-size:24px;letter-spacing:-.03em;margin:6px 0 8px}
+.d-body .d-desc{font-size:13px;color:#68737f;line-height:1.75;margin:0 0 22px}
+.d-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.dm{background:#f6f8fb;border-radius:10px;padding:12px 14px}
+.dm span{display:block;font-size:10px;color:#9298a1;margin-bottom:4px}
+.dm strong{font-size:12.5px}
+.d-sec{font-size:12px;font-weight:800;margin:22px 0 10px;color:#39434e}
+.d-links{display:grid;gap:8px}
+.dlink{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.5px;transition:.14s}
+.dlink:hover{border-color:#b9c9e8;background:#f8faff}
+.dlink .lp{flex:1;word-break:break-all}
+.dlink em{font-style:normal;font-size:10.5px;color:#9298a1;flex:none}
+.dlink.off{opacity:.45;pointer-events:none}
+.dlink.dead{background:#fdf6f5;border-color:#f0d8d5}
+.dlink .st{font-size:9.5px;font-weight:800;border-radius:5px;padding:2px 8px;flex:none}
+.st.ok{color:#0e7a5f;background:#e6f5ef}
+.st.wait{color:#a06a10;background:#faf1de}
+.st.dead{color:#b3413c;background:#fdeeed}
+.d-snaps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dsnap{height:110px;border-radius:9px;background:linear-gradient(150deg,#eef2f8,#f7f9fc);border:1px solid var(--line);position:relative;overflow:hidden}
+.dsnap:before{content:"";position:absolute;inset:14px;background:#fff;border-radius:7px;box-shadow:0 5px 14px rgba(13,26,42,.07)}
+.dsnap:after{content:"";position:absolute;left:26px;right:26px;top:34px;height:5px;border-radius:4px;background:#e2e6ec;box-shadow:0 11px 0 #eef1f5,0 22px 0 #eef1f5}
+.rel-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:5px 13px;font-size:11.5px;font-weight:600;color:#3d4854;background:#fff;cursor:pointer;transition:.14s}
+.rel-chip:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ===== 页脚 ===== */
+.foot{border-top:1px solid var(--line);margin-top:44px;padding:24px 0 44px}
+.foot-in{max-width:1440px;margin:auto;padding:0 36px;display:flex;gap:20px;flex-wrap:wrap;font-size:11.5px;color:#9298a1}
+.empty{padding:60px;text-align:center;border:1.5px dashed #d5dae0;border-radius:16px;color:#9298a1;background:#fff;font-size:13px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:#172b4d;color:#fff;font-size:13px;padding:10px 18px;border-radius:11px;opacity:0;pointer-events:none;transition:.22s;z-index:120}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+@media(max-width:1080px){
+  .g4,.scen-strip{grid-template-columns:repeat(3,1fr)}
+  .g3{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:34px}
+  .hero-stats{gap:26px}
+}
+@media(max-width:720px){
+  .topbar-in{padding:0 16px;gap:10px}.nav{display:none}
+  .wrap{padding:0 16px}
+  .g2,.g3,.g4,.d-meta{grid-template-columns:1fr}
+  .scen-strip{grid-template-columns:repeat(2,1fr)}
+  .searchbox{display:none}
+  .hero h1{font-size:27px}
+  .hero p{font-size:13.5px}
+}
+</style>
 </head>
-<body>
-  <header class="topbar">
-    <div class="topbar__inner">
-      <a class="brand" href="#top" aria-label="返回顶部">
-        <span class="brand__mark">UED</span>
-        <span>Design Asset Map</span>
-      </a>
-      <nav class="nav" aria-label="主导航">
-        <a href="#projects">项目</a>
-        <a href="#assets">资产</a>
-        <a href="#tools">工具 &amp; Skill</a>
-        <a href="#guides">指南</a>
-      </nav>
-      <div class="topbar__actions">
-        <label class="search-mini">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-          <input data-search-input type="search" placeholder="搜索资产" aria-label="搜索资产" />
-        </label>
-        <a class="source-link" href="https://www.figma.com/design/rJCVHAEMLxR7I8GNu2qo7Y/AI%E5%8F%8C%E5%91%A8%E4%BC%9A?node-id=1867-2&amp;t=chCZnU77OL0UtESO-1" target="_blank" rel="noreferrer">源画板 ↗</a>
+<body data-page-node-id="B7OaHpPLNEB7d1CSGskziS">
+
+<header class="topbar" data-page-node-id="vlkHwlRAe1WEbBJTO6Keha">
+  <div class="topbar-in" data-page-node-id="BJOdmJWC1UHfNg4iJEEGXa">
+    <div class="brand" data-page-node-id="OnYugSJdLHGTR88yhuGX9M"><span class="brand-mark" data-page-node-id="j1Gj2HGcPD4QBVFEoYbPi2">UED</span>DesignMap <em data-page-node-id="4EPcIjF0LKYPus50HWEcWe">· 设计团队内部</em></div>
+    <nav class="nav" id="nav" data-page-node-id="tHh7KrKtYgxUAlI0ovgluj">
+      <button class="active" data-page="home" data-page-node-id="xh3FsFT8urHXw2h41mUxBT">首页</button>
+      <button data-page="projects" data-page-node-id="cD8WDRVEfcLBxcBoEczKMN">项目</button>
+      <button data-page="assets" data-page-node-id="VpYGG5IOYwMFyklrfrX6ZM">资产</button>
+      <button data-page="tools" data-page-node-id="mDHMqLk8BTeiND4Ha3T6o4">工具</button>
+      <button data-page="guides" data-page-node-id="aKjs1l1PutZ9rB9Hk9hhDw">指南</button>
+    </nav>
+    <div class="searchbox" data-page-node-id="0Ats9t9bXKljAFE286i6Cc">⌕ <input id="q" placeholder="搜索资产、项目、工具…" data-page-node-id="ImfThY1GWAIDsRzie0Wmxo"></div>
+  </div>
+</header>
+
+<div class="wrap" id="app" data-page-node-id="Q6XBRe9rMUmAtsyDXwpHjn"></div>
+
+<footer class="foot" data-page-node-id="KiNU6c6iuS45p6Oer4fCBe"><div class="foot-in" data-page-node-id="13bXwYHrkNQLAcwr0TNqtw">
+  <span data-page-node-id="5CWsyIHQXgi7Xk7ag8WsGK">DesignMap · UED 资产门户</span>
+  <span data-page-node-id="ViTBdzMT8tQI2F8lRVru6y">原始平台永远是 Source of Truth，这里只做索引与导航</span>
+  <span data-page-node-id="MmMcc5uvFQGciLw1w2BqH7">数据存于当前浏览器，正式版将接入统一维护</span>
+</div></footer>
+
+<div class="mask" id="mask" data-page-node-id="vWu9tWXGuYgyQSsTOxj5xz"><aside class="drawer" data-page-node-id="D1LgGedXISZu9tLUmHiRWi"><button class="dx" id="dx" data-page-node-id="78AW87Tj5OYfZuQELu9lFX">×</button><div id="drawerBody" data-page-node-id="qHAC39Do0IiIYEdMBJhLB2"></div></aside></div>
+<div class="toast" id="toast" data-page-node-id="ErnthtN2DXx6Df5lIVuEsg"></div>
+
+<script>
+/* ================= 数据（来源：Figma 资产地图画板 2026-09-04） ================= */
+const BIZ=['借条','会员','中收','运营','公共'];
+
+const projects=[
+/* --- 画板项目区 3 张大卡（Teams 链接从画板 OCR 还原，待核对） --- */
+{id:'p1',biz:'公共',title:'重点项目进展 (2026)',tone:'blue',desc:'2026 年团队重点项目进展跟踪表，含节点、负责人与当前状态。',owner:'设计组',status:'进行中',updated:'09/04',isKey:true,
+ links:[{label:'Teams 在线表格',url:'https://doc.360teams.com/sheets/rp3OVaPVEEHj8xArn/3InRA?site_from=im.desktop',st:'ok'}]},
+{id:'p2',biz:'公共',title:'设计需求表 (2026)',tone:'navy',desc:'2026 年设计需求统一登记与排期，需求承接的入口。',owner:'设计组',status:'进行中',updated:'09/04',isKey:true,
+ links:[{label:'Teams 在线表格',url:'https://doc.360teams.com/sheets/WAXVn7VxBtIUrqrVrMODOC?site_from=im.desktop',st:'ok'}]},
+{id:'p3',biz:'公共',title:'2026 AI 研究专项小组',tone:'purple',desc:'AI 能力在设计流程中的落地研究，双周产出与实验沉淀。',owner:'AI 专项组',status:'进行中',updated:'09/04',isKey:true,
+ links:[{label:'Teams 在线表格',url:'https://doc.360teams.com/sheets/mnSayv9LEe6WC15zqX/Jqk35?site_from=im.desktop',st:'ok'}]},
+/* --- 画板业务线 4 张卡 --- */
+{id:'p4',biz:'借条',title:'借条服务页改版',tone:'blue',desc:'借条服务页整体改版，体验与视觉双升级。',owner:'设计组',status:'进行中',updated:'09/03',
+ links:[{label:'Figma 设计文件',url:'#',st:'ok'}]},
+{id:'p5',biz:'会员',title:'【会员】还款无忧权益',tone:'teal',desc:'会员还款无忧权益设计，权益展示与转化路径。',owner:'设计组',status:'进行中',updated:'09/03',
+ links:[{label:'Figma 设计文件',url:'#',st:'ok'}]},
+{id:'p6',biz:'中收',title:'【智信】合规营销文案调整',tone:'amber',desc:'智信业务合规营销文案的规范化调整。',owner:'设计组',status:'进行中',updated:'09/03',
+ links:[{label:'Figma 设计文件',url:'#',st:'ok'}]},
+{id:'p7',biz:'运营',title:'借条资源位设计规范',tone:'navy',desc:'借条资源位的设计规范与模板沉淀。',owner:'设计组',status:'当前有效',updated:'09/02',
+ links:[{label:'规范文档',url:'#',st:'ok'}]},
+];
+
+const assets=[
+/* --- 画板资产区第一行：四大核心资产 --- */
+{id:'a1',cat:'交互设计资产',tone:'navy',title:'奇富借条 UI 组件库',desc:'借条业务 UI 组件与视觉规范，对接开发实现。',owner:'设计组',updated:'1 天前',perm:'开放',src:['p4'],used:['p4'],
+ links:[{label:'MasterGo',url:'#',st:'ok'},{label:'Confluence',url:'#',st:'ok'}]},
+{id:'a2',cat:'交互设计资产',tone:'blue',title:'奇富中后台组件库',desc:'中后台组件体系、设计 Token 与页面模板。',owner:'设计组',updated:'2 天前',perm:'开放',src:[],used:['p7'],
+ links:[{label:'MasterGo',url:'#',st:'ok'},{label:'Confluence',url:'#',st:'ok'}]},
+{id:'a3',cat:'品牌资产',tone:'amber',title:'奇富 IP 资源库',desc:'IP 形象、表情包与衍生素材的统一资源库。',owner:'品牌组',updated:'1 天前',perm:'需申请',src:[],used:[],
+ links:[{label:'素材库入口',url:'#',st:'ok'}]},
+{id:'a4',cat:'品牌资产',tone:'mist',title:'奇富素材资源库',desc:'通用设计素材：图标、插画、3D 与音效素材来源汇总。',owner:'设计组',updated:'1 天前',perm:'开放',src:[],used:[],
+ links:[{label:'素材库入口',url:'#',st:'ok'}]},
+/* --- 画板资产区第二行：会议沉淀与公共资产 --- */
+{id:'a5',cat:'项目复盘资产',tone:'teal',title:'设计部月会分享',desc:'月度设计分享、案例复盘与方法论沉淀。',owner:'设计组',updated:'1 天前',perm:'仅内部',src:[],used:[],
+ links:[{label:'会议记录归档',url:'#',st:'ok'},{label:'飞书文档',url:'#',st:'wait'}]},
+{id:'a6',cat:'项目复盘资产',tone:'purple',title:'AI 专项双周会',desc:'AI 研究专项小组双周会记录与实验产出。',owner:'AI 专项组',updated:'1 天前',perm:'仅内部',src:['p3'],used:['p3'],
+ links:[{label:'会议记录归档',url:'#',st:'ok'}]},
+{id:'a7',cat:'品牌资产',tone:'mist',title:'设计部版权字体-2019',desc:'团队版权字体清单：字体、授权范围、人员等公共内容。',owner:'设计组',updated:'—',perm:'仅内部',src:[],used:[],
+ links:[{label:'字体清单',url:'#',st:'ok'}]},
+{id:'a8',cat:'品牌资产',tone:'amber',title:'奇富科技品牌升级',desc:'品牌升级资产：规范、流程、人员等公共内容。',owner:'品牌组',updated:'—',perm:'需申请',src:[],used:[],
+ links:[{label:'品牌规范',url:'#',st:'ok'}]},
+{id:'a9',cat:'历史归档资产',tone:'mist',title:'2026 年 Q3~Q4 项目归档',desc:'季度项目归档：资产、规范、流程、人员等公共内容。',owner:'设计组',updated:'—',perm:'仅内部',src:[],used:[],
+ links:[{label:'归档目录',url:'#',st:'wait'}]},
+];
+
+const tools=[
+/* --- Skill --- */
+{id:'t1',kind:'Skill',ico:'SK',color:'sk',title:'UI 验收工具',desc:'方便设计师与开发、测试、产品经理共同协作，快速定位开发页面的问题，完成走查工具的 PRD。',tags:['UI 验收','协作走查'],used:['奇富中后台组件库','奇富借条 UI 组件库'],owner:'设计组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t2',kind:'Skill',ico:'SK',color:'sk',title:'AI 数据复盘工具',desc:'把机械工作交给 AI，把深度判断还给团队——自动汇总数据、生成复盘初稿。',tags:['AI 复盘','数据整理'],used:['AI 专项双周会','设计部月会分享'],owner:'AI 专项组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t3',kind:'Skill',ico:'SK',color:'sk',title:'人像交付 Skill',desc:'人像类视觉素材的批量处理与交付，统一输出规格。',tags:['人像处理','批量交付'],used:['奇富 IP 资源库'],owner:'设计组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t4',kind:'Skill',ico:'SK',color:'sk',title:'奇富科技 KV Skill',desc:'营销 KV 视觉的规范化产出流程，支持首页·福利组合等场景。',tags:['KV 视觉','营销物料'],used:['奇富科技品牌升级'],owner:'品牌组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t5',kind:'Skill',ico:'SK',color:'sk',title:'qfn-visual Skill',desc:'视觉类 Skill：规范化产出与多尺寸适配。',tags:['视觉','多尺寸'],used:['奇富科技品牌升级'],owner:'品牌组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t6',kind:'Skill',ico:'SK',color:'sk',title:'qfn-list-page',desc:'中后台列表页脚手架 Skill，快速生成标准列表页结构。',tags:['中后台','列表页'],used:['奇富中后台组件库'],owner:'设计组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t7',kind:'Skill',ico:'SK',color:'sk',title:'qfn-figma-drawer',desc:'抽屉组件场景 Skill，规范抽屉类交互的搭建方式。',tags:['中后台','抽屉组件'],used:['奇富中后台组件库'],owner:'设计组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+{id:'t8',kind:'Skill',ico:'SK',color:'sk',title:'builder skill',desc:'页面搭建聚合 Skill，串联组件与模板快速成页。',tags:['页面搭建','提效'],used:['奇富中后台组件库','奇富借条 UI 组件库'],owner:'设计组',
+ links:[{label:'Skill 平台',url:'#',st:'ok'}]},
+/* --- Figma 插件 --- */
+{id:'t9',kind:'Figma 插件',ico:'FG',color:'fp',title:'Delete Slices',desc:'一键清理 Figma 当前页面中的 Slice 图层，交付前整理文件必备。',tags:['切图清理','文件整理'],used:['奇富借条 UI 组件库','奇富中后台组件库'],owner:'设计组',
+ links:[{label:'Figma Community',url:'#',st:'ok'}]},
+{id:'t10',kind:'Figma 插件',ico:'FG',color:'fp',title:'Sketch 字体替换',desc:'解决 Sketch 文件导入 Figma 后字体名称、字重不一致带来的替换问题。',tags:['字体修复','Sketch 迁移'],used:['项目归档迁移'],owner:'设计组',
+ links:[{label:'Figma Community',url:'#',st:'ok'}]},
+{id:'t11',kind:'Figma 插件',ico:'FG',color:'fp',title:'Opaque PDF Exporter',desc:'导出时自动压缩，保证清晰度的同时减小文件体积。',tags:['PDF 导出','压缩'],used:['奇富中后台组件库'],owner:'设计组',
+ links:[{label:'Figma Community',url:'#',st:'ok'}]},
+];
+
+const guides=[
+{id:'g1',kick:'GET STARTED',title:'新人手册',desc:'入职第一周该看什么：团队协作方式、常用入口、设计规范、交付流程。',links:[{label:'Confluence',url:'#',st:'ok'}]},
+{id:'g2',kick:'WORKFLOW',title:'协作流程',desc:'需求承接、设计评审、交付验收的标准流程与责任人。',links:[{label:'Confluence',url:'#',st:'ok'}]},
+{id:'g3',kick:'STANDARD',title:'命名与存放规范',desc:'文件命名、Figma 文件组织、资产存放位置的统一规则。',links:[{label:'Confluence',url:'#',st:'ok'}]},
+{id:'g4',kick:'ARCHIVE',title:'归档与快照规则',desc:'什么时候截图、什么是最终版本、链接失效后如何处理。',links:[{label:'Confluence',url:'#',st:'ok'}]},
+];
+
+/* ================= 状态 ================= */
+let state={page:'home',tab:'全部',q:''};
+let custom=[];
+try{custom=JSON.parse(localStorage.getItem('designmap_v5')||'[]')}catch(e){}
+const $=s=>document.querySelector(s);
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const allAssets=()=>[...assets,...custom.filter(x=>x.type==='asset')];
+const allProjects=()=>[...projects,...custom.filter(x=>x.type==='project')];
+const allTools=()=>[...tools,...custom.filter(x=>x.type==='tool')];
+const allGuides=()=>[...guides,...custom.filter(x=>x.type==='guide')];
+
+function match(x,fields){
+  if(!state.q.trim())return true;
+  const q=state.q.trim().toLowerCase();
+  return fields.join(' ').toLowerCase().includes(q);
+}
+const statusChip=s=>`<span class="chip ${s==='当前有效'||s==='开放'?'ok':s==='进行中'?'doing':s==='历史归档'?'old':'wait'}">${esc(s)}</span>`;
+
+/* ================= 卡片模板 ================= */
+function assetCard(a){
+  return `<article class="mcard" data-kind="asset" data-id="${a.id}">
+    <div class="mthumb c-${a.tone||'mist'}">
+      <span class="mbadge">${esc(a.cat)}</span>
+      <div class="mock"><b></b><i class="w1"></i><i class="w2"></i><i class="w3"></i></div>
+      <div class="mlink-chip">${a.links.map(l=>`<span class="src" style="margin-left:4px">${esc(l.label.split(' ')[0])}</span>`).join('')}</div>
+    </div>
+    <div class="mbody">
+      <h3>${esc(a.title)}</h3>
+      <p>${esc(a.desc)}</p>
+      <div class="mmeta"><span>${esc(a.owner)} · ${esc(a.updated)}</span>${statusChip(a.perm)}</div>
+    </div>
+  </article>`;
+}
+function projectCard(p){
+  return `<article class="bigcard" data-kind="project" data-id="${p.id}">
+    <div class="bigthumb mthumb c-${p.tone}">
+      <span class="mbadge">${esc(p.biz)}</span>
+      <span class="bigbtn">${p.links[0]&&p.links[0].url!=='#'?'打开链接 ↗':'查看详情'}</span>
+      <div class="mock"><b></b><i class="w1"></i><i class="w2"></i><i class="w3"></i></div>
+    </div>
+    <div class="bigbody">
+      <h3>${esc(p.title)}</h3>
+      <p>${esc(p.desc)}</p>
+      <div class="bigfoot">
+        <span class="plat">${p.links.some(l=>l.url.includes('teams'))?'Teams':p.links.some(l=>l.url.includes('figma'))?'Figma':'文档'}</span>
+        <span style="font-size:11px;color:#98a0ab">${esc(p.owner)} · ${esc(p.updated)}</span>
+        ${statusChip(p.status)}
       </div>
     </div>
-  </header>
-
-  <main id="top">
-    <section class="hero">
-      <div class="hero__copy">
-        <span class="eyebrow">UED internal portal</span>
-        <h1>让设计资产<br />更容易被找到。</h1>
-        <p class="hero__lead">从项目出发，也可以按资产与能力查找。这里不承载原始文件，只提供清晰、可信的统一入口。</p>
-        <label class="search-main">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-          <input data-search-input type="search" placeholder="搜索项目、资产、工具或 Skill…" aria-label="搜索项目、资产、工具或 Skill" />
-          <kbd>⌘ K</kbd>
-        </label>
-        <div class="quick-links" aria-label="快捷搜索">
-          <button type="button" data-query="组件库">组件库</button>
-          <button type="button" data-query="会员">会员</button>
-          <button type="button" data-query="AI">AI 专项</button>
-          <button type="button" data-query="Figma">Figma 工具</button>
-          <button type="button" data-query="新人">新人指南</button>
-        </div>
-      </div>
-      <div class="hero__visual" aria-hidden="true">
-        <div class="visual-card visual-card--a"><img src="assets/asset-hub/demand-summary.png" alt="" /></div>
-        <div class="visual-card visual-card--b"><img src="assets/asset-hub/monthly-2026-07.png" alt="" /></div>
-        <div class="visual-card visual-card--c"><div><strong>{ 资产地图 }</strong><span>PROJECT · ASSET · TOOL</span></div></div>
-      </div>
-    </section>
-
-    <div class="content">
-      <div class="overview" aria-label="内容总览">
-        <a href="#projects"><strong>项目入口</strong><span>重点进展与业务项目 →</span></a>
-        <a href="#assets"><strong>资产橱窗</strong><span>组件、品牌与团队沉淀 →</span></a>
-        <a href="#tools"><strong>工具 &amp; Skill</strong><span>按场景寻找设计能力 →</span></a>
-        <a href="#guides"><strong>指南与规范</strong><span>新人、协作与归档 →</span></a>
-      </div>
-
-      <section class="section" id="projects">
-        <header class="section__head">
-          <div><div class="section__number">01 / PROJECTS</div><h2>从项目进入上下文</h2></div>
-          <p class="section__intro">先看团队进展与需求入口，再进入具体业务项目。每张卡片对应一个明确的工作上下文。</p>
-        </header>
-
-        <div class="ops-grid">
-          <article class="resource-card" data-item data-search="重点项目进展 2026 项目 表格 进展">
-            <div class="resource-card__media"><img src="assets/asset-hub/demand-summary.png" alt="重点项目进展表预览" /></div>
-            <div class="resource-card__body">
-              <div class="meta-row"><span class="dot"></span>项目管理 · 2026</div>
-              <h3>重点项目进展（2026）</h3>
-              <div class="card-footer"><span class="status">● 待接入原始链接</span><span class="arrow" aria-hidden="true">→</span></div>
-            </div>
-          </article>
-          <article class="resource-card" data-item data-search="设计需求表 2026 需求 teams 表格">
-            <div class="resource-card__media"><img src="assets/asset-hub/innovation-pool.png" alt="设计需求表预览" /></div>
-            <div class="resource-card__body">
-              <div class="meta-row"><span class="dot"></span>需求管理 · 2026</div>
-              <h3>设计需求表（2026）</h3>
-              <div class="card-footer"><span class="status">● 待接入原始链接</span><span class="arrow" aria-hidden="true">→</span></div>
-            </div>
-          </article>
-          <article class="resource-card" data-item data-search="2026 AI 研究 专项 小组">
-            <div class="resource-card__media"><img src="assets/asset-hub/ai-tool-compare.png" alt="AI 研究专项小组预览" /></div>
-            <div class="resource-card__body">
-              <div class="meta-row"><span class="dot"></span>专项研究 · AI</div>
-              <h3>2026 AI 研究专项小组</h3>
-              <div class="card-footer"><span class="status">● 待接入原始链接</span><span class="arrow" aria-hidden="true">→</span></div>
-            </div>
-          </article>
-        </div>
-
-        <div class="subsection-head"><h3>业务项目</h3><span>按画板现有分类整理</span></div>
-        <div class="project-grid">
-          <article class="project-card" data-item data-search="借条 服务页改版 项目">
-            <div class="project-card__visual" data-label="借条"><img src="assets/asset-hub/team-service.png" alt="服务页改版预览" /></div>
-            <div class="project-card__body"><div class="meta-row">PROJECT FILE</div><h3>服务页改版</h3><p>借条业务项目入口与设计方案。</p><div class="card-footer"><span class="status">待接入</span><span class="arrow">→</span></div></div>
-          </article>
-          <article class="project-card" data-item data-search="会员 还款无忧权益 项目">
-            <div class="project-card__visual project-card__visual--blue" data-label="会员"><img src="assets/asset-hub/member-rights.png" alt="会员还款无忧权益预览" /></div>
-            <div class="project-card__body"><div class="meta-row">PROJECT FILE</div><h3>【会员】还款无忧权益</h3><p>会员权益方案与设计交付入口。</p><div class="card-footer"><span class="status">待接入</span><span class="arrow">→</span></div></div>
-          </article>
-          <article class="project-card" data-item data-search="中收 智信 合规营销文案调整 项目">
-            <div class="project-card__visual project-card__visual--orange" data-label="中收"><img src="assets/asset-hub/backend-guidelines.png" alt="合规营销文案调整预览" /></div>
-            <div class="project-card__body"><div class="meta-row">PROJECT FILE</div><h3>【智信】合规营销文案调整</h3><p>中收项目设计稿与交付信息。</p><div class="card-footer"><span class="status">待接入</span><span class="arrow">→</span></div></div>
-          </article>
-          <article class="project-card" data-item data-search="运营 借条 资源位 设计规范 项目">
-            <div class="project-card__visual project-card__visual--purple" data-label="运营"><img src="assets/asset-hub/figma-migration.png" alt="借条资源位设计规范预览" /></div>
-            <div class="project-card__body"><div class="meta-row">PROJECT FILE</div><h3>借条资源位设计规范</h3><p>运营资源位规范与设计示例。</p><div class="card-footer"><span class="status">待接入</span><span class="arrow">→</span></div></div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="assets">
-        <header class="section__head">
-          <div><div class="section__number">02 / ASSETS</div><h2>可复用的设计沉淀</h2></div>
-          <p class="section__intro">按资产类型浏览组件、品牌素材与团队知识。封面优先帮助识别，来源与状态保持清晰。</p>
-        </header>
-
-        <div class="asset-feature-grid">
-          <article class="asset-card asset-card--dark" data-item data-search="奇富借条 UI 组件库 figma 组件资产">
-            <div><span class="asset-card__tag">组件资产</span><h3>奇富借条<br />UI 组件库</h3><p>借条业务的 UI 组件与页面模式。</p></div>
-            <div class="asset-art" aria-hidden="true"><span>UI</span><span>◆</span><span>＋</span></div>
-          </article>
-          <article class="asset-card asset-card--blue" data-item data-search="奇富中后台 组件库 figma 组件资产">
-            <div><span class="asset-card__tag">组件资产</span><h3>奇富中后台<br />组件库</h3><p>中后台场景的通用组件入口。</p></div>
-            <div class="asset-art" aria-hidden="true"><span>01</span><span>▦</span><span>02</span></div>
-          </article>
-          <article class="asset-card asset-card--lime" data-item data-search="奇富 IP 资源 素材 品牌资产">
-            <div><span class="asset-card__tag">品牌资产</span><h3>奇富 IP<br />资源素材</h3><p>IP 形象与相关视觉素材入口。</p></div>
-            <div class="asset-art" aria-hidden="true"><span>IP</span><span>●</span><span>✦</span></div>
-          </article>
-          <article class="asset-card asset-card--image" data-item data-search="奇富素材 资源库 视觉素材">
-            <div><span class="asset-card__tag">素材资源</span><h3>奇富素材资源库</h3><p>团队共享的图像与视觉资源。</p></div>
-            <img src="assets/asset-hub/figma-migration.png" alt="奇富素材资源库预览" />
-          </article>
-        </div>
-
-        <div class="asset-secondary-grid">
-          <article class="editorial-card" data-item data-search="AI 专项 双周周会 会议 资产">
-            <div><div class="meta-row" style="color:#d9ff63">TEAM KNOWLEDGE</div><h3>AI 专项<br />双周周会</h3><p>AI 研究与实践的阶段性沉淀。</p></div>
-            <img src="assets/asset-hub/ai-tool-compare.png" alt="AI 专项双周周会预览" />
-          </article>
-          <a class="editorial-card editorial-card--blue" data-item data-search="设计部 月会分享 figma 会议 资产" href="https://www.figma.com/design/21CDfOKJdK6YB89VTbokkL/%F0%9F%8C%9B-%E6%9C%88%E4%BC%9A?node-id=837-2225&amp;t=EWVhY3ozLXVRyRMq-1" target="_blank" rel="noreferrer">
-            <div><div class="meta-row" style="color:#fff">OPEN IN FIGMA ↗</div><h3>设计部<br />月会分享</h3><p>设计团队月度分享与案例记录。</p></div>
-            <img src="assets/asset-hub/monthly-2026-07.png" alt="设计部月会分享预览" />
-          </a>
-        </div>
-
-        <div class="link-list">
-          <div class="link-item" data-item data-search="设计基础数字表 2019 历史归档"><div class="link-item__icon">01</div><div><strong>设计基础数字表－2019</strong><span>历史归档 · 待接入</span></div></div>
-          <div class="link-item" data-item data-search="品牌资产 logo 规范"><div class="link-item__icon">Aa</div><div><strong>品牌资产</strong><span>品牌资源 · 待接入</span></div></div>
-          <div class="link-item" data-item data-search="奇富科技 品牌升级 品牌资产"><div class="link-item__icon">QF</div><div><strong>奇富科技品牌升级</strong><span>品牌项目 · 待接入</span></div></div>
-          <div class="link-item" data-item data-search="2026 Q3 Q4 项目归档 历史"><div class="link-item__icon">↳</div><div><strong>2026 年 Q3–Q4 项目归档</strong><span>项目归档 · 待接入</span></div></div>
-        </div>
-      </section>
-
-      <section class="section" id="tools">
-        <header class="section__head">
-          <div><div class="section__number">03 / TOOLS &amp; SKILLS</div><h2>按场景寻找能力</h2></div>
-          <p class="section__intro">工具解决具体操作，Skill 沉淀团队方法。门户只聚合入口与说明，不替代工具本身。</p>
-        </header>
-
-        <div class="tool-layout">
-          <aside class="tool-aside"><strong>设计工具</strong><p>用于生产、检查、交付与整理设计资产的能力入口。</p><span>5 个画板内工具</span></aside>
-          <div class="tool-grid">
-            <article class="tool-card" data-item data-search="UI 验收工具 还原度 检查"><div class="tool-icon">UI</div><h3>UI 验收工具</h3><p>检查页面间距、字号与视觉还原。</p><span class="status">● 待接入工具链接</span></article>
-            <article class="tool-card" data-item data-search="Delete Slices Figma 插件"><div class="tool-icon">⌫</div><h3>Delete Slices</h3><p>一键清理 Figma 页面中的 Slice 图层。</p><span class="status">● 待接入工具链接</span></article>
-            <article class="tool-card" data-item data-search="Sketch 字体替换 插件"><div class="tool-icon">Aa</div><h3>Sketch 字体替换</h3><p>迁移稿件时快速检查与替换字体。</p><span class="status">● 待接入工具链接</span></article>
-            <article class="tool-card" data-item data-search="Opaque PDF Exporter 导出 插件"><div class="tool-icon">PDF</div><h3>Opaque PDF Exporter</h3><p>导出更适合交付与评审的 PDF。</p><span class="status">● 待接入工具链接</span></article>
-            <article class="tool-card" data-item data-search="AI 数据整理工具 结构化"><div class="tool-icon">AI</div><h3>AI 数据整理工具</h3><p>结构化整理设计资料与研究信息。</p><span class="status">● 待接入工具链接</span></article>
-          </div>
-        </div>
-
-        <div class="subsection-head"><h3>团队 Skill</h3><span>Skill · 场景 · 项目</span></div>
-        <div class="skill-grid">
-          <article class="skill-card" data-item data-search="奇富科技 KV Skill 视觉"><div><div class="skill-avatar">✦</div><h3>奇富科技 KV Skill</h3><p>品牌视觉生成场景</p></div><div class="skill-preview"><i></i><i></i><i></i><i></i></div></article>
-          <article class="skill-card" data-item data-search="Qfin Visual Skill 视觉"><div><div class="skill-avatar">◐</div><h3>Qfin Visual Skill</h3><p>视觉设计场景</p></div><div class="skill-preview"><i></i><i></i><i></i><i></i></div></article>
-          <article class="skill-card" data-item data-search="非黑 AI 提效 Skill"><div><div class="skill-avatar">AI</div><h3>非黑 AI 提效 Skill</h3><p>提效工具场景</p></div><div class="skill-preview"><i></i><i></i><i></i><i></i></div></article>
-          <article class="skill-card" data-item data-search="首页 素材 组合 Skill"><div><div class="skill-avatar">⌘</div><h3>首页素材组合 Skill</h3><p>页面搭建场景</p></div><div class="skill-preview"><i></i><i></i><i></i><i></i></div></article>
-          <article class="skill-card" data-item data-search="Qfin list page Skill 列表页"><div><div class="skill-avatar">≡</div><h3>Qfin-list-page</h3><p>列表页设计场景</p></div><div class="skill-preview"><i></i><i></i><i></i><i></i></div></article>
-          <article class="skill-card" data-item data-search="Qfin figma drawer builder Skill 抽屉"><div><div class="skill-avatar">↗</div><h3>Qfin-figma-drawer-builder</h3><p>Figma 抽屉组件场景</p></div><div class="skill-preview"><i></i><i></i><i></i><i></i></div></article>
-        </div>
-      </section>
-
-      <section class="section" id="guides">
-        <header class="section__head">
-          <div><div class="section__number">04 / GUIDES</div><h2>团队工作指南</h2></div>
-          <p class="section__intro">降低新人上手与跨团队协作成本。内容页与外部文档可以在这里形成稳定入口。</p>
-        </header>
-        <div class="guide-grid">
-          <article class="guide-card" data-item data-search="新人手册 入职 指南"><span class="guide-card__index">GUIDE 01</span><h3>新人手册</h3><p>团队介绍、常用入口与设计协作方式。</p><span class="status">● 待接入文档链接</span></article>
-          <article class="guide-card" data-item data-search="协作流程 规范 交付 归档"><span class="guide-card__index">GUIDE 02</span><h3>协作流程</h3><p>需求协作、设计交付与项目归档的基础规则。</p><span class="status">● 待接入文档链接</span></article>
-        </div>
-      </section>
-
-      <div class="empty-state" id="empty" hidden><strong>没有找到匹配内容</strong><span>试试项目名称、资产类型或工具名称。</span></div>
+  </article>`;
+}
+function toolRow(t){
+  return `<article class="tcard" data-kind="tool" data-id="${t.id}">
+    <div class="tcard-top"><div class="t-ico ${t.color}">${t.ico}</div><div><h3>${esc(t.title)}</h3><span class="tkind">${esc(t.kind)}</span></div></div>
+    <p>${esc(t.desc)}</p>
+    <div class="tcard-foot">
+      <div class="t-tags">${t.tags.map(x=>`<span class="ttag">${esc(x)}</span>`).join('')}</div>
+      <span class="t-owner">${t.used.length?esc(t.used[0]):esc(t.owner||'设计组')}</span>
     </div>
-  </main>
+  </article>`;
+}
+function guideCard(g){
+  return `<article class="gcard" data-kind="guide" data-id="${g.id}">
+    <span class="gk">${esc(g.kick)}</span><h3>${esc(g.title)}</h3><p>${esc(g.desc)}</p>
+  </article>`;
+}
+function linkHTML(l){
+  if(l.st==='dead')return `<div class="dlink dead"><span class="st dead">已失效</span><span class="lp">${esc(l.label)}</span><em>建议用快照 ↗</em></div>`;
+  if(!l.url||l.url==='#')return `<div class="dlink off"><span class="st wait">待补</span><span class="lp">${esc(l.label)}</span><em>—</em></div>`;
+  return `<a class="dlink" href="${esc(l.url)}" target="_blank" rel="noopener"><span class="st ${l.st==='wait'?'wait':'ok'}">${l.st==='wait'?'待确认':'正常'}</span><span class="lp">${esc(l.label)}</span><em>打开 ↗</em></a>`;
+}
 
-  <footer><strong>UED Design Asset Map</strong><span>统一入口 · 原始资料仍由各工具维护</span></footer>
+/* ================= 页面渲染 ================= */
+function renderNav(){
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===state.page));
+}
+function heroHTML(kick,h1,p,links){
+  return `<section class="page-hero"><div class="wrap">
+    <div class="crumbs">${kick}</div><h1>${h1}</h1><p>${p}</p>
+  </div></section>`;
+}
 
-  <script>
-    const inputs = [...document.querySelectorAll('[data-search-input]')];
-    const items = [...document.querySelectorAll('[data-item]')];
-    const empty = document.querySelector('#empty');
+function pageHome(){
+  const P=allProjects().filter(p=>p.isKey),A=allAssets(),T=allTools(),G=allGuides();
+  return `<section class="hero"><div class="wrap">
+    <h1>设计团队资产，<span>一图尽览</span></h1>
+    <p>项目、资产、工具与规则的统一入口。不替代任何平台，只负责发现、关联与定位——每个条目都指向它真正的家。</p>
+    <div class="hero-search">⌕ <input id="hq" placeholder="搜索：组件库 / 借条 / Skill / 归档…"></div>
+    <div class="hero-tags">
+      <span class="htag" data-go="assets" data-cat="交互设计资产">找组件</span>
+      <span class="htag" data-go="assets" data-cat="品牌资产">找品牌素材</span>
+      <span class="htag" data-go="assets" data-cat="项目复盘资产">看复盘</span>
+      <span class="htag" data-go="tools" data-kind="Skill">用 Skill</span>
+      <span class="htag" data-go="guides">查规范</span>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><b>${allProjects().length}</b><span>在跟项目</span></div>
+      <div class="hstat"><b>${A.length}</b><span>沉淀资产</span></div>
+      <div class="hstat"><b>${T.length}</b><span>提效工具</span></div>
+      <div class="hstat"><b>${G.length}</b><span>团队指南</span></div>
+    </div>
+  </div></section>
+  <div class="wrap">
+  <div class="scen-strip">
+    <div class="scen" data-go="assets" data-cat="交互设计资产"><span class="si" style="background:#0747a6">件</span><b>找组件</b><small>组件库 · 模板</small></div>
+    <div class="scen" data-go="assets" data-cat="品牌资产"><span class="si" style="background:#b97a12">牌</span><b>找品牌素材</b><small>IP · Logo · 物料</small></div>
+    <div class="scen" data-go="assets" data-cat="项目复盘资产"><span class="si" style="background:#0e8a76">盘</span><b>看复盘</b><small>月会 · 双周会</small></div>
+    <div class="scen" data-go="projects"><span class="si" style="background:#0052cc">项</span><b>进项目</b><small>需求 · 设计稿</small></div>
+    <div class="scen" data-go="tools"><span class="si" style="background:#6a5ad8">技</span><b>用 Skill</b><small>提效工具</small></div>
+    <div class="scen" data-go="guides"><span class="si" style="background:#172b4d">规</span><b>查规范</b><small>命名 · 流程</small></div>
+  </div>
+  <section class="sec"><div class="sec-head"><h2>重点项目</h2><span class="sub"><a href="#" data-go="projects" style="color:var(--blue)">全部项目 →</a></span></div>
+    <div class="grid g3">${P.slice(0,3).map(projectCard).join('')}</div></section>
+  <section class="sec"><div class="sec-head"><h2>核心资产</h2><span class="sub"><a href="#" data-go="assets" style="color:var(--blue)">全部资产 →</a></span></div>
+    <div class="grid g4">${A.slice(0,4).map(assetCard).join('')}</div></section>
+  <section class="sec"><div class="sec-head"><h2>工具 &amp; Skill</h2><span class="sub"><a href="#" data-go="tools" style="color:var(--blue)">全部工具 →</a></span></div>
+    <div class="grid g3">${T.slice(0,3).map(toolRow).join('')}</div></section>
+  <section class="sec"><div class="sec-head"><h2>指南与规则</h2><span class="sub"><a href="#" data-go="guides" style="color:var(--blue)">全部指南 →</a></span></div>
+    <div class="grid g3">${G.slice(0,3).map(guideCard).join('')}</div></section>
+  </div>`;
+}
 
-    function runSearch(raw) {
-      const query = raw.trim().toLowerCase();
-      let visible = 0;
-      inputs.forEach(input => { if (input.value !== raw) input.value = raw; });
-      items.forEach(item => {
-        const haystack = (item.dataset.search || item.textContent).toLowerCase();
-        const match = !query || haystack.includes(query);
-        item.hidden = !match;
-        if (match) visible += 1;
-      });
-      empty.hidden = visible !== 0;
-    }
+function pageProjects(){
+  const P=allProjects().filter(p=>match(p,[p.title,p.desc,p.owner,p.biz]));
+  const keys=P.filter(p=>p.isKey),biz=P.filter(p=>!p.isKey);
+  return heroHTML('PROJECTS','项目档案','以项目为维度组织完整上下文：进展表、需求表、研究专项与业务线项目。')
+  +`<div class="wrap">
+  <section class="sec"><div class="sec-head"><h2>团队公共项目</h2><span class="sub">Teams 在线表格</span></div>
+    <div class="grid g3">${keys.map(projectCard).join('')}</div></section>
+  <section class="sec"><div class="sec-head"><h2>业务线项目</h2><span class="sub">借条 / 会员 / 中收 / 运营</span></div>
+    <div class="grid g4">${biz.map(projectCard).join('')||'<div class="empty">没有匹配的项目</div>'}</div></section>
+  </div>`;
+}
 
-    inputs.forEach(input => input.addEventListener('input', event => runSearch(event.target.value)));
-    document.querySelectorAll('[data-query]').forEach(button => button.addEventListener('click', () => runSearch(button.dataset.query)));
-    document.addEventListener('keydown', event => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        inputs[0].focus();
-      }
-    });
-  </script>
+const ASSET_CATS=['全部','交互设计资产','品牌资产','项目复盘资产','历史归档资产'];
+function pageAssets(){
+  const A=allAssets().filter(a=>match(a,[a.title,a.desc,a.owner,a.cat]));
+  const shown=state.tab==='全部'?A:A.filter(a=>a.cat===state.tab);
+  return heroHTML('ASSETS','设计资产','团队真正沉淀下来的东西，按类型组织：每个卡片带预览、维护人和原始链接。')
+  +`<div class="wrap"><div class="group-nav">${ASSET_CATS.map(c=>`<button class="gtab ${state.tab===c?'active':''}" data-cat="${c}">${c}</button>`).join('')}</div>
+  <section class="sec">${shown.length?`<div class="grid g4">${shown.map(assetCard).join('')}</div>`:'<div class="empty">这个分类暂时没有资产</div>'}</section></div>`;
+}
+
+const TOOL_KINDS=['全部','Skill','Figma 插件'];
+function pageTools(){
+  const T=allTools().filter(t=>match(t,[t.title,t.desc,t.kind,t.tags.join(' '),(t.used||[]).join(' ')]));
+  const shown=state.tab==='全部'?T:T.filter(t=>t.kind===state.tab);
+  return heroHTML('TOOLS & SKILLS','工具 & Skill','Skill 与 Figma 插件——团队真正在用的提效工具，按类型筛选。')
+  +`<div class="wrap"><div class="group-nav">${TOOL_KINDS.map(k=>`<button class="gtab ${state.tab===k?'active':''}" data-kind="${k}">${k}</button>`).join('')}</div>
+  <section class="sec">${shown.length?`<div class="grid g3">${shown.map(toolRow).join('')}</div>`:'<div class="empty">没有匹配的工具</div>'}</section></div>`;
+}
+
+function pageGuides(){
+  const G=allGuides().filter(g=>match(g,[g.title,g.desc]));
+  return heroHTML('GUIDELINES','指南与规则','新人手册、协作流程、命名规范与归档规则——规则只保留一份，所有人看同一个入口。')
+  +`<div class="wrap"><section class="sec"><div class="grid g3">${G.length?G.map(guideCard).join(''):'<div class="empty">没有匹配的指南</div>'}</div></section></div>`;
+}
+
+/* ================= 抽屉 ================= */
+function openDrawer(kind,id){
+  let x,html='';
+  if(kind==='asset'){x=allAssets().find(v=>v.id===id);
+    const src=(x.src||[]).map(s=>allProjects().find(p=>p.id===s)).filter(Boolean);
+    html=`<div class="d-cover t-${x.tone}"><div class="mock" style="position:absolute;inset:34px"><b></b><i class="w1"></i><i class="w2"></i><i class="w3"></i></div></div>
+    <div class="d-body"><div class="d-kick">${esc(x.cat)}</div><h2>${esc(x.title)}</h2><p class="d-desc">${esc(x.desc)}</p>
+    <div class="d-meta">
+      <div class="dm"><span>维护人</span><strong>${esc(x.owner)}</strong></div>
+      <div class="dm"><span>最后更新</span><strong>${esc(x.updated)}</strong></div>
+      <div class="dm"><span>权限</span><strong>${esc(x.perm)}</strong></div>
+    </div>
+    <div class="d-sec">原始链接</div><div class="d-links">${x.links.map(linkHTML).join('')}</div>
+    ${src.length?`<div class="d-sec">来源项目</div><div>${src.map(p=>`<span class="rel-chip" data-open="project:${p.id}">${esc(p.title)} →</span> `).join('')}</div>`:''}
+    <div class="d-sec">关键快照</div><div class="d-snaps"><div class="dsnap"></div><div class="dsnap"></div><div class="dsnap"></div></div></div>`;
+  }else if(kind==='project'){x=allProjects().find(v=>v.id===id);
+    const rel=(x.used||[]).map(u=>({t:u})).filter(Boolean);
+    html=`<div class="d-cover t-${x.tone}"><div class="mock" style="position:absolute;inset:34px"><b></b><i class="w1"></i><i class="w2"></i><i class="w3"></i></div></div>
+    <div class="d-body"><div class="d-kick">PROJECT · ${esc(x.biz)}</div><h2>${esc(x.title)}</h2><p class="d-desc">${esc(x.desc)}</p>
+    <div class="d-meta">
+      <div class="dm"><span>负责人</span><strong>${esc(x.owner)}</strong></div>
+      <div class="dm"><span>状态</span><strong>${esc(x.status)}</strong></div>
+      <div class="dm"><span>更新</span><strong>${esc(x.updated)}</strong></div>
+    </div>
+    <div class="d-sec">原始链接</div><div class="d-links">${x.links.map(linkHTML).join('')}</div>
+    <div class="d-sec">关键快照</div><div class="d-snaps"><div class="dsnap"></div><div class="dsnap"></div><div class="dsnap"></div></div></div>`;
+  }else if(kind==='tool'){x=allTools().find(v=>v.id===id);
+    html=`<div class="d-cover t-${x.color==='sk'?'purple':x.color==='fp'?'blue':'teal'}"></div>
+    <div class="d-body"><div class="d-kick">TOOL · ${esc(x.kind)}</div><h2>${esc(x.title)}</h2><p class="d-desc">${esc(x.desc)}</p>
+    <div class="d-meta">
+      <div class="dm"><span>类型</span><strong>${esc(x.kind)}</strong></div>
+      <div class="dm"><span>维护人</span><strong>${esc(x.owner||'设计组')}</strong></div>
+      <div class="dm"><span>更新</span><strong>${esc(x.updated||'—')}</strong></div>
+    </div>
+    <div class="d-sec">适用场景</div><div class="t-tags">${x.tags.map(t=>`<span class="ttag">${esc(t)}</span>`).join('')}</div>
+    ${x.used.length?`<div class="d-sec">使用过的项目</div><div>${x.used.map(u=>`<span class="rel-chip">${esc(u)}</span> `).join('')}</div>`:''}
+    <div class="d-sec">入口</div><div class="d-links">${x.links.map(linkHTML).join('')}</div></div>`;
+  }else{x=allGuides().find(v=>v.id===id);
+    html=`<div class="d-cover t-amber"></div>
+    <div class="d-body"><div class="d-kick">${esc(x.kick)}</div><h2>${esc(x.title)}</h2><p class="d-desc">${esc(x.desc)}</p>
+    <div class="d-sec">正文入口</div><div class="d-links">${x.links.map(linkHTML).join('')}</div></div>`;
+  }
+  $('#drawerBody').innerHTML=html;
+  $('#mask').classList.add('show');
+  document.querySelectorAll('[data-open]').forEach(el=>el.onclick=e=>{e.stopPropagation();const[k,id]=el.dataset.open.split(':');openDrawer(k,id)});
+}
+
+/* ================= 渲染总控 ================= */
+function render(){
+  renderNav();
+  const app=$('#app');
+  if(state.page==='home')app.innerHTML=pageHome();
+  else if(state.page==='projects')app.innerHTML=pageProjects();
+  else if(state.page==='assets')app.innerHTML=pageAssets();
+  else if(state.page==='tools')app.innerHTML=pageTools();
+  else app.innerHTML=pageGuides();
+  bindCards();
+  const hq=$('#hq');
+  if(hq)hq.addEventListener('input',e=>{$('#q').value=e.target.value;state.q=e.target.value;render();$('#q').value=e.target.value});
+}
+function bindCards(){
+  document.querySelectorAll('[data-kind]').forEach(el=>el.onclick=()=>openDrawer(el.dataset.kind,el.dataset.id));
+  document.querySelectorAll('[data-go]').forEach(el=>el.onclick=e=>{e.preventDefault();state.page=el.dataset.go;state.tab='全部';render();window.scrollTo(0,0)});
+  document.querySelectorAll('.gtab').forEach(el=>el.onclick=()=>{
+    state.tab=el.dataset.cat||el.dataset.kind;render();
+  });
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{state.page=b.dataset.page;state.tab='全部';render();window.scrollTo(0,0)});
+$('#q').addEventListener('input',e=>{state.q=e.target.value;render()});
+$('#dx').onclick=()=>$('#mask').classList.remove('show');
+$('#mask').onclick=e=>{if(e.target===$('#mask'))$('#mask').classList.remove('show')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#mask').classList.remove('show')});
+render();
+</script>
 </body>
 </html>
